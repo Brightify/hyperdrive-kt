@@ -1,20 +1,15 @@
 [versions]
-kotlin = "1.9.0"
-kotlin-coroutines = "1.7.3"
-kotlin-serialization = "1.5.1"
-ktor = "2.3.2"
-auto-service = "1.0.1"
-kotlin-compile-testing = "1.5.0"
-jupiter = "5.9.0"
-compose = "1.4.3"
-compose-compiler = "1.5.1"
-multiplatformSettings = "1.0.0"
-kodein = "7.20.2"
-sqldelight = "1.5.3"
-kotest = "5.6.2"
+kotlin = "2.0.0"
+kotlin-coroutines = "1.8.1"
+kotlin-serialization = "1.6.3"
+kotlin-compile-testing = "1.6.0"
+jupiter = "5.10.2"
+compose = "1.6.7"
+multiplatformSettings = "1.1.1"
+kotest = "5.8.0"
 android-gradle = "8.0.2"
 intellij = "1.15.0"
-dokka = "1.8.10"
+dokka = "1.8.20"
 nexusPublish = "1.1.0"
 
 [plugins]
@@ -31,6 +26,7 @@ buildconfig = { id = "com.github.gmazzo.buildconfig", version = "3.0.3" }
 intellij = { id = "org.jetbrains.intellij", version.ref = "intellij" }
 gradlepublish = { id = "com.gradle.plugin-publish", version = "1.0.0" }
 kotest = { id = "io.kotest.multiplatform", version.ref = "kotest" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -44,16 +40,7 @@ coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ve
 
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlin-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlin-serialization" }
 
-ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
-ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
-ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
-ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
-ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
-ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
-
-auto-service = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
 compile-testing = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kotlin-compile-testing" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter" }
 
@@ -69,11 +56,6 @@ compose-material = { module = "androidx.compose.material:material", version.ref 
 multiplatformSettings-core = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatformSettings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatformSettings" }
 
-diff-js = { module = "io.github.petertrr:kotlin-multiplatform-diff-js", version = "0.4.0" }
-
-kodein = { module = "org.kodein.di:kodein-di", version.ref = "kodein" }
-
 [bundles]
 kotest-common = ["kotest-assertions-core", "kotest-engine", "kotest-datatest", "kotest-property"]
 kotest-jvm = ["kotest-runner-junit5"]
-serialization = ["serialization-core", "serialization-json", "serialization-protobuf"]

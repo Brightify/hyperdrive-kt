@@ -103,6 +103,7 @@ public class InterfaceLock(
          */
         public suspend fun runExclusively(work: suspend () -> Unit) {
             if (!mutableIsOperationRunning.compareAndSet(expect = false, update = true)) {
+                logger.warning { "Can't run exclusively because another operation is already running." }
                 return
             }
 

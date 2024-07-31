@@ -1,5 +1,3 @@
-import gradle.kotlin.dsl.accessors._5a1900c780505febcc091afed3567ed1.java
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 

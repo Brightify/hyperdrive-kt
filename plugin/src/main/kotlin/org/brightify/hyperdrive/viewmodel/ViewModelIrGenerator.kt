@@ -54,7 +54,7 @@ class ViewModelIrGenerator(
             } ?: continue
 
             val declarationBuilder = DeclarationIrBuilder(pluginContext, propertyGetter.symbol)
-            val delegateField = IrFieldImpl(
+            val delegateField = pluginContext.irFactory.createField(
                 startOffset = property.startOffset,
                 endOffset = property.endOffset,
                 origin = IrDeclarationOrigin.PROPERTY_DELEGATE,

@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.provideDelegate
-
 plugins {
     id("hyperdrive-base")
     kotlin("jvm")

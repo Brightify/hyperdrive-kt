@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="logging-jvm-1.0.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/../logging/build/libs</output-path>
+    <root id="archive" name="logging-jvm-1.0.0-SNAPSHOT.jar" />
+  </artifact>
+</component>

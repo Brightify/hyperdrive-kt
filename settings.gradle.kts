@@ -6,13 +6,7 @@ pluginManagement {
     }
 
     plugins {
-    }
-    resolutionStrategy {
-//        eachPlugin {
-//            if (requested.id.namespace == "com.android" || requested.id.name == "kotlin-android-extensions") {
-//                useModule("com.android.tools.build:gradle:8.0.0")
-//            }
-//        }
+        id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
     }
 
     includeBuild("build-setup")
@@ -31,8 +25,8 @@ rootProject.name = "Hyperdrive"
 
 include(
     ":compose",
-    ":ide:android-studio",
-    ":ide:intellij-idea",
+//    ":ide:android-studio",
+//    ":ide:intellij-idea",
     ":kotlin-utils",
     ":logging",
     ":plugin",

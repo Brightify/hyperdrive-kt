@@ -217,7 +217,7 @@ open class AutoFactoryResolveExtension: SyntheticResolveExtension {
     }
 }
 
-object AUTO_FACTORY_PLUGIN_ORIGIN : IrDeclarationOriginImpl("AUTO_FACTORY", true)
+val AUTO_FACTORY_PLUGIN_ORIGIN = IrDeclarationOriginImpl("AUTO_FACTORY", true)
 
 class FactoryClassDescriptor(
     context: LazyClassContext,

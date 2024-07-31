@@ -35,8 +35,7 @@ dependencyResolutionManagement {
 rootProject.name = "examples"
 
 include(
-    ":krpc",
     ":multiplatformx",
 )
 
-includeBuild("../sources")
+includeBuild("..")

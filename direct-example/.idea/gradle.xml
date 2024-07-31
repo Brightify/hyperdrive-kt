@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/../build-setup" name="build-setup">
+                <projects>
+                  <project path="$PROJECT_DIR$/../build-setup" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/.." name="Hyperdrive">
+                <projects>
+                  <project path="$PROJECT_DIR$/.." />
+                  <project path="$PROJECT_DIR$/../compose" />
+                  <project path="$PROJECT_DIR$/../kotlin-utils" />
+                  <project path="$PROJECT_DIR$/../logging" />
+                  <project path="$PROJECT_DIR$/../plugin" />
+                  <project path="$PROJECT_DIR$/../runtime" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/.." />
+            <option value="$PROJECT_DIR$/../build-setup" />
+            <option value="$PROJECT_DIR$/../compose" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/../kotlin-utils" />
+            <option value="$PROJECT_DIR$/../logging" />
+            <option value="$PROJECT_DIR$/../plugin" />
+            <option value="$PROJECT_DIR$/../runtime" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

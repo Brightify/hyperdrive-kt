@@ -46,3 +46,4 @@ build/
 *.hprof
 .vscode
 .idea/sonarlint
+.kotlin

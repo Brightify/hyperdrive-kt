@@ -1,5 +1,6 @@
 plugins {
     id("hyperdrive-android")
+    alias(libs.plugins.compose.compiler)
 }
 
 publishingMetadata {
@@ -33,7 +34,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+//        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
 }

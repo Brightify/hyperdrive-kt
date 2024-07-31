@@ -28,6 +28,9 @@ open class AutoFactoryIrGenerator(
         val factoryCreateMethod = irClass.functions.single { it.name == AutoFactoryNames.createFun }
         // irClass.addFakeOverrides(compilerContext.irBuiltIns, listOf(factoryCreateMethod))
 
+//        0
+//
+//        8
         // IrOverridingUtil(compilerContext.irBuiltIns, FakeOverrideBuilder())
 
         val newParametersAccess: List<Either<IrValueParameter, Pair<IrField, IrValueParameter>>> = autoFactoryConstructor.valueParameters.map { parameter ->

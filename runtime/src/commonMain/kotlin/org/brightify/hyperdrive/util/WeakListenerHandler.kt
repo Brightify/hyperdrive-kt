@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalNativeApi::class)
+
 package org.brightify.hyperdrive.util
 
 import org.brightify.hyperdrive.CancellationToken
