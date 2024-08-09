@@ -24,6 +24,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "Hyperdrive"
 
 include(
+    ":annotations",
     ":compose",
 //    ":ide:android-studio",
 //    ":ide:intellij-idea",

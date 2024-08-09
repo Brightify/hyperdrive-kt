@@ -1,0 +1,16 @@
+language = Objective-C
+package = tools.hyperdrive
+
+---
+
+#import <Foundation/Foundation.h>
+
+@interface ObservationRegistrarBridge: NSObject
+
+-(void)accessedProperty:(NSString*)property;
+
+-(void)willSetProperty:(NSString*)property;
+
+-(void)didSetProperty:(NSString*)property;
+
+@end

@@ -9,6 +9,7 @@ plugins {
 //    id("com.android.library")
 //    kotlin("multiplatform")
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.skie)
 //    alias(libs.plugins.swiftpackage)
 //    id("org.brightify.hyperdrive")
 }
@@ -49,12 +50,15 @@ plugins {
 //}
 
 dependencies {
-//    kotlinCompilerPluginClasspath(project(":plugin"))
+    kotlinCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
+    kotlinNativeCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
 }
 
 kotlin {
     jvm()
     listOf(
+        macosArm64(),
+        macosX64(),
         iosArm64(),
         iosSimulatorArm64(),
         iosX64(),
@@ -69,6 +73,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("org.brightify.hyperdrive:annotations")
                 implementation("org.brightify.hyperdrive:runtime")
 
                 implementation(libs.coroutines.core)

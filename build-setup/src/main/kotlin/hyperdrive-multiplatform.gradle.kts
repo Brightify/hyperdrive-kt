@@ -11,7 +11,6 @@ val libs = the<LibrariesForLibs>()
 
 kotlin {
     explicitApi()
-    targetHierarchy.default()
 
     jvm()
 

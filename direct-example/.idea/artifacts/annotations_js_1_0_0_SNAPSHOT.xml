@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="annotations-js-1.0.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/../annotations/build/libs</output-path>
+    <root id="archive" name="annotations-js-1.0.0-SNAPSHOT.jar">
+      <element id="module-output" name="Hyperdrive.annotations.jsMain" />
+    </root>
+  </artifact>
+</component>

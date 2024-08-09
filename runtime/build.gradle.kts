@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
     id("hyperdrive-multiplatform")
     alias(libs.plugins.kotest)
+    alias(libs.plugins.skie)
 }
 
 publishingMetadata {
@@ -9,6 +12,12 @@ publishingMetadata {
 }
 
 kotlin {
+    targets.withType<KotlinNativeTarget>().configureEach {
+        compilations.getByName("main") {
+            cinterops.create("ObservationRegistrarBridge")
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {

@@ -15,6 +15,7 @@
               <build path="$PROJECT_DIR$/.." name="Hyperdrive">
                 <projects>
                   <project path="$PROJECT_DIR$/.." />
+                  <project path="$PROJECT_DIR$/../annotations" />
                   <project path="$PROJECT_DIR$/../compose" />
                   <project path="$PROJECT_DIR$/../kotlin-utils" />
                   <project path="$PROJECT_DIR$/../logging" />
@@ -30,6 +31,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/.." />
+            <option value="$PROJECT_DIR$/../annotations" />
             <option value="$PROJECT_DIR$/../build-setup" />
             <option value="$PROJECT_DIR$/../compose" />
             <option value="$PROJECT_DIR$" />
