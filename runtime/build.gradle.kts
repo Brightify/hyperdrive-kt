@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 plugins {
     id("hyperdrive-multiplatform")
     alias(libs.plugins.kotest)
+    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.skie)
 }
 
@@ -24,6 +26,7 @@ kotlin {
                 api(projects.kotlinUtils)
                 api(projects.logging)
                 implementation(libs.coroutines.core)
+                implementation(compose.runtime)
             }
         }
         val commonTest by getting {

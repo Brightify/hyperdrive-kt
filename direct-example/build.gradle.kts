@@ -8,8 +8,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 //    id("com.android.library")
 //    kotlin("multiplatform")
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.skie)
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.skie) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.application) apply false
 //    alias(libs.plugins.swiftpackage)
 //    id("org.brightify.hyperdrive")
 }
@@ -49,41 +52,41 @@ plugins {
 //    }
 //}
 
-dependencies {
-    kotlinCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
-    kotlinNativeCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
-}
-
-kotlin {
-    jvm()
-    listOf(
-        macosArm64(),
-        macosX64(),
-        iosArm64(),
-        iosSimulatorArm64(),
-        iosX64(),
-    ).forEach {
-        it.binaries {
-            framework {
-                baseName = "ExampleKit"
-            }
-        }
-    }
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.brightify.hyperdrive:annotations")
-                implementation("org.brightify.hyperdrive:runtime")
-
-                implementation(libs.coroutines.core)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-            }
-        }
-    }
-}
+//dependencies {
+//    kotlinCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
+//    kotlinNativeCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
+//}
+//
+//kotlin {
+//    jvm()
+//    listOf(
+//        macosArm64(),
+//        macosX64(),
+//        iosArm64(),
+//        iosSimulatorArm64(),
+//        iosX64(),
+//    ).forEach {
+//        it.binaries {
+//            framework {
+//                baseName = "ExampleKit"
+//            }
+//        }
+//    }
+//
+//    sourceSets {
+//        val commonMain by getting {
+//            dependencies {
+//                implementation("org.brightify.hyperdrive:annotations")
+//                implementation("org.brightify.hyperdrive:runtime")
+//
+//                implementation(libs.coroutines.core)
+//            }
+//        }
+//        val commonTest by getting {
+//            dependencies {
+//                implementation(kotlin("test-common"))
+//                implementation(kotlin("test-annotations-common"))
+//            }
+//        }
+//    }
+//}

@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.backend.jvm.functionByName
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -26,16 +27,27 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.addMember
 import org.jetbrains.kotlin.ir.declarations.createBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrGetField
+import org.jetbrains.kotlin.ir.expressions.IrSetField
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrFieldSymbolImpl
+import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.defaultType
+import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.constructors
+import org.jetbrains.kotlin.ir.util.getPropertyGetter
+import org.jetbrains.kotlin.ir.util.getPropertySetter
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.javac.resolve.classId
+import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
+import kotlin.math.exp
 
 class ObservableObjectIrGenerationExtension(
     private val messageCollector: MessageCollector,
@@ -56,6 +68,7 @@ class ObservableObjectIrGenerationExtension(
 
         val types = ObservableObjectIrGenerator.Types(
             observationRegistrarBridge = ObservationRegistrarBridgeSymbols(this),
+            mutableStateSymbols = MutableStateSymbols(this),
         )
         return ObservableObjectIrGenerator(messageCollector, this, types)
     }
@@ -80,6 +93,37 @@ data class ObservationRegistrarBridgeSymbols(
     }
 }
 
+data class MutableStateSymbols(
+    val self: IrClassSymbol,
+    val mutableStateOfFunction: IrSimpleFunctionSymbol,
+    val valueGetter: IrSimpleFunctionSymbol,
+    val valueSetter: IrSimpleFunctionSymbol,
+) {
+    companion object {
+        operator fun invoke(context: IrPluginContext): MutableStateSymbols? {
+            val self = context.referenceClass(classId("androidx.compose.runtime", "MutableState")) ?: return null
+
+            val mutableStateOfFunction = context.referenceFunctions(
+                CallableId(
+                    packageName = FqName("androidx.compose.runtime"),
+                    callableName = Name.identifier("mutableStateOf"),
+                )
+            ).singleOrNull() ?: return null
+
+            return MutableStateSymbols(
+                self = self,
+                mutableStateOfFunction = mutableStateOfFunction,
+                valueGetter = self.getPropertyGetter("value")!!,
+                valueSetter = self.getPropertySetter("value")!!,
+            )
+
+//            import androidx.compose.runtime.MutableState
+//                    import androidx.compose.runtime.getValue
+//                    import androidx.compose.runtime.mutableStateOf
+//                    import androidx.compose.runtime.setValue
+        }
+    }
+}
 
 class ObservableObjectIrGenerator(
     private val messageCollector: MessageCollector,
@@ -89,23 +133,104 @@ class ObservableObjectIrGenerator(
 
     class Types(
         val observationRegistrarBridge: ObservationRegistrarBridgeSymbols?,
+        val mutableStateSymbols: MutableStateSymbols?,
     )
 
     override fun lower(irClass: IrClass) {
         if (!irClass.hasAnnotation(Names.Annotations.observable)) { return }
 
-        if (types.observationRegistrarBridge != null) {
-            val observationRegistrarField = irClass.addObservationRegistrarBridge(types.observationRegistrarBridge)
-            irClass.addAccessMethod()
-            irClass.addWithMutationMethod()
-            irClass.markPropertiesForTracking()
-            irClass.wrapMutableProperties(types.observationRegistrarBridge, observationRegistrarField)
-        } else {
+        if (types.mutableStateSymbols == null && types.observationRegistrarBridge == null) {
             messageCollector.report(
                 severity = CompilerMessageSeverity.STRONG_WARNING,
                 message = "No observation runtime found, @Observable annotated class ${irClass.name} won't be changed.",
             )
+            return
         }
+
+        irClass.markPropertiesForTracking()
+
+        if (types.mutableStateSymbols != null) {
+            irClass.delegatePropertiesToState(types.mutableStateSymbols)
+        }
+
+        if (types.observationRegistrarBridge != null) {
+            val observationRegistrarField = irClass.addObservationRegistrarBridge(types.observationRegistrarBridge)
+            irClass.wrapMutableProperties(types.observationRegistrarBridge, observationRegistrarField)
+        }
+    }
+
+    private fun IrClass.markPropertiesForTracking() {
+        declarations.filterIsInstance<IrProperty>()
+            .filter { it.isVar && !it.hasAnnotation(Names.Annotations.observationIgnored) }
+            .forEach {
+                // TODO: Add `@ObservationTracked`
+//                it.annotations += irConstructorCall(
+//                    call = ,
+//                    newSymbol = ,
+//                    receiversAsArguments = ,
+//                    argumentsAsDispatchers =
+//                )
+            }
+    }
+
+    private fun IrClass.delegatePropertiesToState(mutableState: MutableStateSymbols) {
+        declarations.filterIsInstance<IrProperty>()
+            .filter { it.isVar }
+            .forEach { property ->
+                property.delegateToState(mutableState)
+            }
+    }
+
+    private fun IrProperty.delegateToState(mutableState: MutableStateSymbols) {
+        if (backingField == null) {
+            error("$this has null `backingField`")
+        }
+
+        val declarationBuilder = DeclarationIrBuilder(pluginContext, symbol)
+        val originalType = backingField!!.type
+        backingField!!.type = mutableState.self.typeWith(originalType)
+        println("Changed backingField from ${originalType.classFqName} to ${backingField!!.type.classFqName}")
+
+        val originalInitializer = backingField!!.initializer!!
+        backingField!!.initializer = declarationBuilder.irExprBody(
+            declarationBuilder.irCall(mutableState.mutableStateOfFunction).apply {
+                putTypeArgument(0, originalType)
+                putValueArgument(0, originalInitializer.expression)
+            }
+        )
+
+        getter!!.transformChildrenVoid(object: IrElementTransformerVoid() {
+            override fun visitGetField(expression: IrGetField): IrExpression {
+                println("[get] ${expression.symbol == backingField!!.symbol}")
+                return if (expression.symbol == backingField!!.symbol) {
+                    declarationBuilder.irCall(
+                        mutableState.valueGetter,
+                    ).apply {
+                        this.dispatchReceiver = expression
+                    }
+                } else {
+                    super.visitGetField(expression)
+                }
+            }
+        })
+
+        setter!!.transformChildrenVoid(object: IrElementTransformerVoid() {
+            override fun visitSetField(expression: IrSetField): IrExpression {
+                println("[set] ${expression.symbol == backingField!!.symbol}")
+                return if (expression.symbol == backingField!!.symbol) {
+                    declarationBuilder.irCall(
+                        mutableState.valueSetter,
+                    ).apply {
+                        this.dispatchReceiver = declarationBuilder.irGetField(
+                            expression.receiver, backingField!!
+                        )
+                        putValueArgument(0, expression.value)
+                    }
+                } else {
+                    super.visitSetField(expression)
+                }
+            }
+        })
     }
 
     private fun IrClass.addObservationRegistrarBridge(bridge: ObservationRegistrarBridgeSymbols): IrField {
@@ -132,28 +257,6 @@ class ObservableObjectIrGenerator(
         }
         this.addMember(field)
         return field
-    }
-
-    private fun IrClass.addAccessMethod() {
-
-    }
-
-    private fun IrClass.addWithMutationMethod() {
-
-    }
-
-    private fun IrClass.markPropertiesForTracking() {
-        declarations.filterIsInstance<IrProperty>()
-            .filter { it.isVar && !it.hasAnnotation(Names.Annotations.observationIgnored) }
-            .forEach {
-                // TODO: Add `@ObservationTracked`
-//                it.annotations += irConstructorCall(
-//                    call = ,
-//                    newSymbol = ,
-//                    receiversAsArguments = ,
-//                    argumentsAsDispatchers =
-//                )
-            }
     }
 
     private fun IrClass.wrapMutableProperties(
@@ -229,5 +332,6 @@ object Names {
 
     object Types {
         val observationRegistrarBridge = classId("tools.hyperdrive", "ObservationRegistrarBridge")
+        val mutableState = classId("androidx.compose.runtime", "MutableState")
     }
 }

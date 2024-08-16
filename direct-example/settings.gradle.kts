@@ -24,3 +24,7 @@ dependencyResolutionManagement {
 rootProject.name = "direct-example"
 
 includeBuild("..")
+
+include(":shared:compose-android")
+include(":shared:compose-multiplatform")
+include(":native:android")

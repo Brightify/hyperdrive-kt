@@ -47,3 +47,4 @@ build/
 .vscode
 .idea/sonarlint
 .kotlin
+**/*.xcodeproj/**/xcuserdata
