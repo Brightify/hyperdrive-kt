@@ -1,92 +1,85 @@
 package org.brightify.hyperdrive
 
+import co.touchlab.kermit.BaseLogger
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.LoggerConfig
+import co.touchlab.kermit.Severity
+import co.touchlab.kermit.platformLogWriter
 import org.brightify.hyperdrive.utils.AtomicReference
 import kotlin.reflect.KClass
 
-public enum class LoggingLevel(public val levelValue: Int) {
-    Error(1),
-    Warn(2),
-    Info(3),
-    Debug(4),
-    Trace(5),
-}
-
 public class Logger private constructor(
-    private val tag: String,
+    @PublishedApi
+    internal val tag: String,
 ) {
-    public fun isLoggingEnabled(level: LoggingLevel, throwable: Throwable? = null): Boolean {
-        val logLevelOrBelow = configuration.minLogLevel ?: return false
-        return level.levelValue <= logLevelOrBelow.levelValue
-    }
-
-    public inline fun trace(throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
-        logIfEnabled(LoggingLevel.Trace, throwable, entryBuilder)
+    public inline fun verbose(throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
+        logIfEnabled(Severity.Verbose, throwable, entryBuilder)
     }
 
     public inline fun debug(throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
-        logIfEnabled(LoggingLevel.Debug, throwable, entryBuilder)
+        logIfEnabled(Severity.Debug, throwable, entryBuilder)
     }
 
     public inline fun info(throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
-        logIfEnabled(LoggingLevel.Info, throwable, entryBuilder)
+        logIfEnabled(Severity.Info, throwable, entryBuilder)
     }
 
     public inline fun warning(throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
-        logIfEnabled(LoggingLevel.Warn, throwable, entryBuilder)
+        logIfEnabled(Severity.Warn, throwable, entryBuilder)
     }
 
     public inline fun error(throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
-        logIfEnabled(LoggingLevel.Error, throwable, entryBuilder)
+        logIfEnabled(Severity.Error, throwable, entryBuilder)
     }
 
-    public inline fun logIfEnabled(level: LoggingLevel, throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
-        if (isLoggingEnabled(level, throwable)) {
-            log(level, throwable, entryBuilder())
-        }
-    }
-
-    @PublishedApi
-    internal fun log(level: LoggingLevel, throwable: Throwable?, entry: String) {
-        for (destination in configuration.destinations) {
-            destination.log(level, throwable, tag, entry)
-        }
+    public inline fun logIfEnabled(severity: Severity, throwable: Throwable? = null, crossinline entryBuilder: () -> String) {
+        kermitLogger.logBlock(severity, tag, throwable, entryBuilder)
     }
 
     public class Configuration(
-        public val minLogLevel: LoggingLevel?,
-        public val destinations: List<Destination>,
-    ) {
-
+        public override val minSeverity: Severity,
+        public override val logWriterList: List<LogWriter>,
+    ): LoggerConfig {
         public class Builder {
-            private var minLogLevel: LoggingLevel? = LoggingLevel.Warn
-            private val destinations = mutableListOf<Destination>()
+            private var minSeverity: Severity = Severity.Warn
+            private val logWriters = mutableListOf<LogWriter>()
 
-            public fun setMinLevel(level: LoggingLevel) {
-                minLogLevel = level
+            public fun setMinSeverity(severity: Severity): Builder {
+                minSeverity = severity
+                return this
             }
 
-            public fun disable() {
-                minLogLevel = null
+            public fun addLogWriter(logWriter: LogWriter): Builder {
+                logWriters.add(logWriter)
+                return this
             }
 
-            public fun destination(destination: Destination) {
-                destinations.add(destination)
-            }
-
-            public fun clearDestinations() {
-                destinations.clear()
+            public fun clearLogWriters(): Builder {
+                logWriters.clear()
+                return this
             }
 
             public fun build(): Configuration = Configuration(
-                minLogLevel = minLogLevel,
-                destinations = destinations,
+                minSeverity = minSeverity,
+                logWriterList = logWriters.toList(),
             )
         }
     }
 
     public companion object {
-        private val configurationReference = AtomicReference(Configuration.Builder().apply { destination(PrintlnDestination()) }.build())
-        private val mainLogger = Logger("o.b.h.l.Logger")
+        private object KermitLoggerConfig: LoggerConfig {
+            override val logWriterList: List<LogWriter>
+                get() = configuration.logWriterList
+            override val minSeverity: Severity
+                get() = configuration.minSeverity
+        }
+
+        private val configurationReference = AtomicReference(Configuration.Builder().addLogWriter(platformLogWriter()).build())
+        private val mainLogger = Logger("h.t.Logger")
+
+
+        @PublishedApi
+        internal val kermitLogger: BaseLogger = BaseLogger(KermitLoggerConfig)
 
         public val configuration: Configuration
             get() = configurationReference.value
@@ -112,28 +105,5 @@ public class Logger private constructor(
         public operator fun invoke(tag: String): Logger {
             return Logger(tag)
         }
-    }
-
-    public interface Destination {
-        public fun log(level: LoggingLevel, throwable: Throwable? = null, tag: String, message: String)
-    }
-}
-
-public class PrintlnDestination: Logger.Destination {
-    override fun log(level: LoggingLevel, throwable: Throwable?, tag: String, message: String) {
-        println(level.format(tag, message) + (throwable?.let { "\n" + it.stackTraceToString() } ?: ""))
-    }
-
-    private fun LoggingLevel.format(tag: String, message: String): String {
-        // TODO: Add current thread info.
-        val levelPrefix = when (this) {
-            LoggingLevel.Error -> "ERROR"
-            LoggingLevel.Warn -> "WARN"
-            LoggingLevel.Info -> "INFO"
-            LoggingLevel.Debug -> "DEBUG"
-            LoggingLevel.Trace -> "TRACE"
-        }
-
-        return "$levelPrefix\t@\t$tag\t: $message"
     }
 }

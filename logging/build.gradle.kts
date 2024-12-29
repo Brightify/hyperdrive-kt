@@ -4,16 +4,15 @@ plugins {
 
 publishingMetadata {
     name = "Hyperdrive Logging"
-    description = "WIP: Simple logging layer on top of Kermit."
+    description = "Simple logging layer on top of Kermit."
 }
 
 kotlin {
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                api(libs.coroutines.core)
-                implementation(projects.kotlinUtils)
-            }
+        commonMain.dependencies {
+            api(libs.coroutines.core)
+            implementation(libs.kermit.core)
+            implementation(projects.kotlinUtils)
         }
     }
 }

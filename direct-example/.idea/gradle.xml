@@ -16,10 +16,10 @@
                 <projects>
                   <project path="$PROJECT_DIR$/.." />
                   <project path="$PROJECT_DIR$/../annotations" />
-                  <project path="$PROJECT_DIR$/../compose" />
+                  <project path="$PROJECT_DIR$/../gradle-plugin" />
+                  <project path="$PROJECT_DIR$/../kotlin-plugin" />
                   <project path="$PROJECT_DIR$/../kotlin-utils" />
                   <project path="$PROJECT_DIR$/../logging" />
-                  <project path="$PROJECT_DIR$/../plugin" />
                   <project path="$PROJECT_DIR$/../runtime" />
                 </projects>
               </build>
@@ -33,11 +33,16 @@
             <option value="$PROJECT_DIR$/.." />
             <option value="$PROJECT_DIR$/../annotations" />
             <option value="$PROJECT_DIR$/../build-setup" />
-            <option value="$PROJECT_DIR$/../compose" />
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/native" />
+            <option value="$PROJECT_DIR$/native/android" />
+            <option value="$PROJECT_DIR$/shared" />
+            <option value="$PROJECT_DIR$/shared/compose-android" />
+            <option value="$PROJECT_DIR$/shared/compose-multiplatform" />
+            <option value="$PROJECT_DIR$/../gradle-plugin" />
+            <option value="$PROJECT_DIR$/../kotlin-plugin" />
             <option value="$PROJECT_DIR$/../kotlin-utils" />
             <option value="$PROJECT_DIR$/../logging" />
-            <option value="$PROJECT_DIR$/../plugin" />
             <option value="$PROJECT_DIR$/../runtime" />
           </set>
         </option>

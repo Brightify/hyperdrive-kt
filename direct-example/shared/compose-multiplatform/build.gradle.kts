@@ -7,8 +7,8 @@ plugins {
 }
 
 dependencies {
-    kotlinCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
-    kotlinNativeCompilerPluginClasspath("org.brightify.hyperdrive:plugin")
+    kotlinCompilerPluginClasspath("org.brightify.hyperdrive:kotlin-plugin")
+    kotlinNativeCompilerPluginClasspath("org.brightify.hyperdrive:kotlin-plugin")
 }
 
 kotlin {

@@ -25,11 +25,9 @@ rootProject.name = "Hyperdrive"
 
 include(
     ":annotations",
-    ":compose",
-//    ":ide:android-studio",
-//    ":ide:intellij-idea",
     ":kotlin-utils",
     ":logging",
-    ":plugin",
+    ":gradle-plugin",
+    ":kotlin-plugin",
     ":runtime",
 )
