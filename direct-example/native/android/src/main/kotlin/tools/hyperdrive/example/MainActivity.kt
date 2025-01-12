@@ -24,7 +24,7 @@ class MainActivity: ComponentActivity() {
                     TextField(value = viewModel.helloWorld, onValueChange = viewModel::helloWorld::set)
 
                     Button(onClick = {
-                        viewModel.helloWorld = "Hello World!"
+                        viewModel.reset()
                     }) {
                         Text("Reset")
                     }

@@ -88,22 +88,24 @@ class ObservableObjectIrGenerator(
         declarations.filterIsInstance<IrProperty>()
             .filter { it.isVar }
             .forEach { property ->
-                property.delegateToState(mutableState)
+                val stateField = property.delegateToState(mutableState)
+                // TODO: We should probably create a new field instead of reusing the old one,
+                //  because it could have weird behavior due to being a "PROPERTY_BACKING_FIELD".
+                addMember(stateField)
             }
     }
 
-    private fun IrProperty.delegateToState(mutableState: MutableStateSymbols) {
-        if (backingField == null) {
-            error("$this has null `backingField`")
-        }
+    private fun IrProperty.delegateToState(mutableState: MutableStateSymbols): IrField {
+        val originalBackingField = backingField ?: error("$this has null `backingField`")
+        backingField = null
 
         val declarationBuilder = DeclarationIrBuilder(pluginContext, symbol)
-        val originalType = backingField!!.type
-        backingField!!.type = mutableState.self.typeWith(originalType)
-        println("Changed backingField from ${originalType.classFqName} to ${backingField!!.type.classFqName}")
+        val originalType = originalBackingField.type
+        originalBackingField.type = mutableState.self.typeWith(originalType)
+        println("Changed backingField from ${originalType.classFqName} to ${originalBackingField.type.classFqName}")
 
-        val originalInitializer = backingField!!.initializer!!
-        backingField!!.initializer = declarationBuilder.irExprBody(
+        val originalInitializer = originalBackingField.initializer!!
+        originalBackingField.initializer = declarationBuilder.irExprBody(
             declarationBuilder.irCall(mutableState.mutableStateOfFunction).apply {
                 putTypeArgument(0, originalType)
                 putValueArgument(0, originalInitializer.expression)
@@ -112,8 +114,8 @@ class ObservableObjectIrGenerator(
 
         getter!!.transformChildrenVoid(object: IrElementTransformerVoid() {
             override fun visitGetField(expression: IrGetField): IrExpression {
-                println("[get] ${expression.symbol == backingField!!.symbol}")
-                return if (expression.symbol == backingField!!.symbol) {
+                println("[get] ${expression.symbol == originalBackingField.symbol}")
+                return if (expression.symbol == originalBackingField.symbol) {
                     declarationBuilder.irCall(
                         mutableState.valueGetter,
                     ).apply {
@@ -127,13 +129,13 @@ class ObservableObjectIrGenerator(
 
         setter!!.transformChildrenVoid(object: IrElementTransformerVoid() {
             override fun visitSetField(expression: IrSetField): IrExpression {
-                println("[set] ${expression.symbol == backingField!!.symbol}")
-                return if (expression.symbol == backingField!!.symbol) {
+                println("[set] ${expression.symbol == originalBackingField.symbol}")
+                return if (expression.symbol == originalBackingField.symbol) {
                     declarationBuilder.irCall(
                         mutableState.valueSetter,
                     ).apply {
                         this.dispatchReceiver = declarationBuilder.irGetField(
-                            expression.receiver, backingField!!
+                            expression.receiver, originalBackingField
                         )
                         putValueArgument(0, expression.value)
                     }
@@ -142,6 +144,8 @@ class ObservableObjectIrGenerator(
                 }
             }
         })
+
+        return originalBackingField
     }
 
     private fun IrClass.addObservationRegistrarBridge(bridge: ObservationRegistrarBridgeSymbols): IrField {
